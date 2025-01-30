@@ -619,6 +619,10 @@ if(onnxruntime_USE_ARMNN)
   list(APPEND onnxruntime_test_providers_dependencies onnxruntime_providers_armnn)
 endif()
 
+if(onnxruntime_USE_MPS)
+  list(APPEND onnxruntime_test_providers_dependencies onnxruntime_providers_mps)
+endif()
+
 set(ONNXRUNTIME_TEST_LIBS
     onnxruntime_session
     ${ONNXRUNTIME_INTEROP_TEST_LIBS}
@@ -637,6 +641,7 @@ set(ONNXRUNTIME_TEST_LIBS
     ${PROVIDERS_COREML}
     ${PROVIDERS_XNNPACK}
     ${PROVIDERS_AZURE}
+    ${PROVIDERS_MPS}
     onnxruntime_optimizer
     onnxruntime_providers
     onnxruntime_util
@@ -739,6 +744,13 @@ if(onnxruntime_USE_AZURE)
   list(APPEND onnxruntime_test_framework_libs onnxruntime_providers_azure)
   list(APPEND onnxruntime_test_providers_dependencies onnxruntime_providers_azure)
   list(APPEND onnxruntime_test_providers_libs onnxruntime_providers_azure)
+endif()
+
+if(onnxruntime_USE_MPS)
+  list(APPEND onnxruntime_test_framework_src_patterns  ${TEST_SRC_DIR}/providers/mps/*)
+  list(APPEND onnxruntime_test_framework_libs onnxruntime_providers_mps)
+  list(APPEND onnxruntime_test_providers_dependencies onnxruntime_providers_mps)
+  list(APPEND onnxruntime_test_providers_libs onnxruntime_providers_mps)
 endif()
 
 file(GLOB onnxruntime_test_framework_src CONFIGURE_DEPENDS

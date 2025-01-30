@@ -433,7 +433,8 @@ bool SetEpsForAllNodes(Graph& graph,
           provider_type == onnxruntime::kCoreMLExecutionProvider ||
           provider_type == onnxruntime::kDnnlExecutionProvider ||
           provider_type == onnxruntime::kQnnExecutionProvider ||
-          provider_type == onnxruntime::kSnpeExecutionProvider) {
+          provider_type == onnxruntime::kSnpeExecutionProvider ||
+          provider_type == onnxruntime::kMPSExecutionProvider) {
         found = true;
         break;
       }
@@ -661,6 +662,7 @@ void BaseTester::RunWithConfig(size_t* number_of_pre_packed_weights_counter,
           kSnpeExecutionProvider,
           kXnnpackExecutionProvider,
           kWebGpuExecutionProvider,
+          kMPSExecutionProvider,
       };
 
       // need to special case any synthetic EP names in the exclude list
@@ -718,6 +720,8 @@ void BaseTester::RunWithConfig(size_t* number_of_pre_packed_weights_counter,
           execution_provider = DefaultDmlExecutionProvider();
         else if (provider_type == onnxruntime::kWebGpuExecutionProvider)
           execution_provider = DefaultWebGpuExecutionProvider();
+        else if (provider_type == onnxruntime::kMPSExecutionProvider)
+          execution_provider = DefaultMPSExecutionProvider();
 
         // skip if execution provider is disabled
         if (execution_provider == nullptr)

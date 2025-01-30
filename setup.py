@@ -59,6 +59,7 @@ is_migraphx = False
 is_rocm = False
 is_openvino = False
 is_qnn = False
+is_mps = False
 # The following arguments are mutually exclusive
 if wheel_name_suffix == "gpu":
     # TODO: how to support multiple CUDA versions?
@@ -91,6 +92,9 @@ elif parse_arg_remove_boolean(sys.argv, "--use_azure"):
 elif parse_arg_remove_boolean(sys.argv, "--use_qnn"):
     is_qnn = True
     package_name = "onnxruntime-qnn"
+elif parse_arg_remove_boolean(sys.argv, "--use_mps"):
+    is_mps = True
+    package_name = "onnxruntime-mps"
 
 if is_rocm:
     package_name = "onnxruntime-rocm" if not nightly_build else "ort-rocm-nightly"
@@ -315,6 +319,7 @@ providers_cuda_or_rocm = "onnxruntime_providers_" + ("rocm" if is_rocm else "cud
 providers_tensorrt_or_migraphx = "onnxruntime_providers_" + ("migraphx" if is_migraphx else "tensorrt")
 providers_openvino = "onnxruntime_providers_openvino"
 providers_cann = "onnxruntime_providers_cann"
+providers_mps = "onnxruntime_providers_mps"
 
 if platform.system() == "Linux":
     providers_cuda_or_rocm = "lib" + providers_cuda_or_rocm + ".so"
@@ -326,6 +331,8 @@ elif platform.system() == "Windows":
     providers_tensorrt_or_migraphx = providers_tensorrt_or_migraphx + ".dll"
     providers_openvino = providers_openvino + ".dll"
     providers_cann = providers_cann + ".dll"
+elif platform.system() == "Darwin":
+    providers_mps = providers_mps + ".dylib"
 
 # Additional binaries
 dl_libs = []
@@ -379,6 +386,7 @@ elif platform.system() == "Darwin":
     libs.extend(["libonnxruntime_providers_tensorrt.dylib"])
     libs.extend(["libonnxruntime_providers_cuda.dylib"])
     libs.extend(["libonnxruntime_providers_vitisai.dylib"])
+    libs.extend(["libonnxruntime_providers_mps.dylib"])
     if nightly_build:
         libs.extend(["libonnxruntime_pywrapper.dylib"])
 else:

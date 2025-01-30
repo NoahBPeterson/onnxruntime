@@ -37,3 +37,6 @@
 #ifdef USE_CANN
 #include "core/providers/cann/cann_provider_factory.h"
 #endif
+#ifdef USE_MPS
+#include "core/providers/mps/mps_provider_factory.h"
+#endif

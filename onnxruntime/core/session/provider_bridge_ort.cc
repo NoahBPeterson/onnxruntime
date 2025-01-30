@@ -90,6 +90,7 @@ using IndexedSubGraph_SourceOfSchema = IndexedSubGraph::SourceOfSchema;
 #include "core/providers/openvino/openvino_provider_factory_creator.h"
 #include "core/providers/tensorrt/tensorrt_provider_factory_creator.h"
 #include "core/providers/vitisai/vitisai_provider_factory_creator.h"
+#include "core/providers/mps/mps_provider_factory_creator.h"
 
 #include "core/providers/cuda/cuda_provider_factory.h"
 #include "core/providers/cann/cann_provider_factory.h"
@@ -98,6 +99,7 @@ using IndexedSubGraph_SourceOfSchema = IndexedSubGraph::SourceOfSchema;
 #include "core/providers/migraphx/migraphx_provider_factory.h"
 #include "core/providers/openvino/openvino_provider_factory.h"
 #include "core/providers/tensorrt/tensorrt_provider_factory.h"
+#include "core/providers/mps/mps_provider_factory.h"
 #include "core/providers/tensorrt/tensorrt_provider_options.h"
 #include "core/providers/cuda/cuda_provider_options.h"
 #include "core/providers/cann/cann_provider_options.h"
@@ -1651,6 +1653,8 @@ static ProviderLibrary s_library_tensorrt(LIBRARY_PREFIX ORT_TSTR("onnxruntime_p
 );
 static ProviderLibrary s_library_migraphx(LIBRARY_PREFIX ORT_TSTR("onnxruntime_providers_migraphx") LIBRARY_EXTENSION);
 
+static ProviderLibrary s_library_mps(LIBRARY_PREFIX ORT_TSTR("onnxruntime_providers_mps") LIBRARY_EXTENSION);
+
 void UnloadSharedProviders() {
   s_library_dnnl.Unload();
   s_library_vitisai.Unload();
@@ -1662,6 +1666,7 @@ void UnloadSharedProviders() {
   s_library_rocm.Unload();
   s_library_shared.Unload();
   s_library_migraphx.Unload();
+  s_library_mps.Unload();
 }
 
 // Used by test code
@@ -1849,6 +1854,10 @@ std::shared_ptr<IExecutionProviderFactory> VitisAIProviderFactoryCreator::Create
   return s_library_vitisai.Get().CreateExecutionProviderFactory(&provider_options);
 }
 
+std::shared_ptr<IExecutionProviderFactory> MPSProviderFactoryCreator::Create() {
+  return s_library_mps.Get().CreateExecutionProviderFactory(nullptr);
+}
+
 ProviderInfo_OpenVINO* GetProviderInfo_OpenVINO() {
   return reinterpret_cast<ProviderInfo_OpenVINO*>(s_library_openvino.Get().GetInfo());
 }
@@ -1949,6 +1958,13 @@ ProviderInfo_MIGraphX& GetProviderInfo_MIGraphX() {
     return *info;
 
   ORT_THROW("MIGraphX Provider not available, can't get interface for it");
+}
+
+ProviderInfo_MPS* TryGetProviderInfo_MPS() try {
+  return reinterpret_cast<ProviderInfo_MPS*>(s_library_mps.Get().GetInfo());
+} catch (const std::exception& exception) {
+  LOGS_DEFAULT(ERROR) << exception.what();
+  return nullptr;
 }
 
 void CopyGpuToCpu(
@@ -2832,6 +2848,17 @@ ORT_API_STATUS_IMPL(OrtApis::SessionOptionsAppendExecutionProvider_VitisAI, _In_
     return OrtApis::CreateStatus(ORT_FAIL, "SessionOptionsAppendExecutionProvider_VitisAI: Failed to load shared library");
   }
 
+  options->provider_factories.push_back(factory);
+  return nullptr;
+  API_IMPL_END
+}
+
+ORT_API_STATUS_IMPL(OrtApis::SessionOptionsAppendExecutionProvider_MPS, _In_ OrtSessionOptions* options) {
+  API_IMPL_BEGIN
+  auto factory = onnxruntime::MPSProviderFactoryCreator::Create();
+  if (!factory) {
+    return OrtApis::CreateStatus(ORT_FAIL, "SessionOptionsAppendExecutionProvider_MPS: Failed to load shared library");
+  }
   options->provider_factories.push_back(factory);
   return nullptr;
   API_IMPL_END

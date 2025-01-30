@@ -1256,6 +1256,10 @@ std::unique_ptr<IExecutionProvider> CreateExecutionProviderInstance(
                cit == provider_options_map.end() ? ProviderOptions{} : cit->second, &session_options)
         ->CreateProvider();
 #endif
+  } else if (type == kMPSExecutionProvider) {
+#ifdef USE_MPS
+    return onnxruntime::MPSProviderFactoryCreator::Create()->CreateProvider();
+#endif
   } else {
     // check whether it is a dynamic load EP:
     const auto it = provider_options_map.find(type);

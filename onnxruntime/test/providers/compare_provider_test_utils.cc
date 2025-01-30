@@ -38,6 +38,8 @@ std::unique_ptr<IExecutionProvider> GetExecutionProvider(const std::string& prov
     execution_provider = DefaultDmlExecutionProvider();
   else if (provider_type == onnxruntime::kWebGpuExecutionProvider)
     execution_provider = DefaultWebGpuExecutionProvider();
+  else if (provider_type == onnxruntime::kMPSExecutionProvider)
+    execution_provider = DefaultMPSExecutionProvider();
   // skip if execution provider is disabled
   if (execution_provider == nullptr) {
     return nullptr;

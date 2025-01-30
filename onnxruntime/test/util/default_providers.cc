@@ -12,6 +12,9 @@
 #ifdef USE_CUDA
 #include <core/providers/cuda/cuda_provider_options.h>
 #endif
+#ifdef USE_MPS
+#include "core/providers/mps/mps_provider_factory_creator.h"
+#endif
 #include "core/session/onnxruntime_cxx_api.h"
 #include "core/framework/session_options.h"
 
@@ -326,6 +329,14 @@ std::unique_ptr<IExecutionProvider> DefaultDmlExecutionProvider() {
   }
 #endif
   return nullptr;
+}
+
+std::unique_ptr<IExecutionProvider> DefaultMPSExecutionProvider() {
+#ifdef USE_MPS
+  return MPSProviderFactoryCreator::Create()->CreateProvider();
+#else
+  return nullptr;
+#endif
 }
 
 }  // namespace test

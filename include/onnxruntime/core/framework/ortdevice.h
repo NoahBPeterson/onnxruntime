@@ -14,7 +14,7 @@ struct OrtDevice {
 
   // Pre-defined device types.
   static const DeviceType CPU = 0;
-  static const DeviceType GPU = 1;  // Nvidia or AMD
+  static const DeviceType GPU = 1;  // Nvidia or AMD or Apple
   static const DeviceType FPGA = 2;
   static const DeviceType NPU = 3;  // Ascend
   static const DeviceType DML = 4;
@@ -26,6 +26,7 @@ struct OrtDevice {
     static const MemoryType HIP_PINNED = 2;
     static const MemoryType CANN_PINNED = 3;
     static const MemoryType QNN_HTP_SHARED = 4;
+    static const MemoryType MPS_PINNED = 5;
   };
 
   constexpr OrtDevice(DeviceType device_type_, MemoryType memory_type_, DeviceId device_id_)

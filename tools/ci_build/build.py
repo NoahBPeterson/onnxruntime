@@ -764,6 +764,8 @@ def parse_arguments():
     parser.add_argument("--use_triton_kernel", action="store_true", help="Use triton compiled kernels")
     parser.add_argument("--use_lock_free_queue", action="store_true", help="Use lock-free task queue for threadpool.")
 
+    parser.add_argument("--use_mps", action="store_true", help="Build with MPS (Metal Performance Shaders) support.")
+
     if not is_windows():
         parser.add_argument(
             "--allow_running_as_root",
@@ -1089,6 +1091,7 @@ def generate_build_tree(
         "-Donnxruntime_USE_XNNPACK=" + ("ON" if args.use_xnnpack else "OFF"),
         "-Donnxruntime_USE_WEBNN=" + ("ON" if args.use_webnn else "OFF"),
         "-Donnxruntime_USE_CANN=" + ("ON" if args.use_cann else "OFF"),
+        "-Donnxruntime_USE_MPS=" + ("ON" if args.use_mps else "OFF"),
         "-Donnxruntime_USE_TRITON_KERNEL=" + ("ON" if args.use_triton_kernel else "OFF"),
         "-Donnxruntime_DISABLE_FLOAT8_TYPES=" + ("ON" if disable_float8_types else "OFF"),
         "-Donnxruntime_DISABLE_SPARSE_TENSORS=" + ("ON" if disable_sparse_tensors else "OFF"),
@@ -3019,4 +3022,9 @@ if __name__ == "__main__":
         sys.exit(main())
     except BaseError as e:
         log.error(str(e))
+        log.error(e.args, e.message, e.stacktrace)
+        log.error("Stacktrace:", e.stacktrace)
+        log.error("Traceback:", traceback.format_exc())
+        log.error("Message:", e.message)
+        log.error("Args:", e.args)
         sys.exit(1)
